@@ -1,4 +1,5 @@
-import Link from 'next/link';
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,8 +12,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
+import { User } from 'next-auth';
+import { signOut } from 'next-auth/react';
 
-export default function Navbar() {
+export default function Navbar({ user }: { user: User }) {
   return (
     <header className="flex h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 sticky top-0 z-10">
       <div className="w-full">
@@ -39,7 +42,7 @@ export default function Navbar() {
               alt="Avatar"
               className="rounded-full"
               height="32"
-              src="/placeholder.svg"
+              src={user.image}
               style={{
                 aspectRatio: '32/32',
                 objectFit: 'cover',
@@ -55,7 +58,7 @@ export default function Navbar() {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
