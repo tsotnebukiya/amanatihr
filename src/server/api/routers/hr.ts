@@ -7,16 +7,15 @@ import { TRPCError } from '@trpc/server';
 
 const usersCollection = firestore.collection('users');
 
-export const usersRouter = createTRPCRouter({
+export const hrRouter = createTRPCRouter({
   getHR: protectedProcedure.query(async () => {
     const usersCollection = firestore.collection('users');
-    const query = usersCollection.where('hr', '==', true);
+    const query = usersCollection.orderBy('hr');
     const snapshot = await query.get();
     const list: User[] = [];
     snapshot.forEach((el) => {
       list.push({ id: el.id, ...el.data() } as User);
     });
-    console.log(list, 'CHECKTHIS');
     return list;
   }),
   verifyHR: adminProcedure

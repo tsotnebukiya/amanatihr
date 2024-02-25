@@ -1,4 +1,17 @@
-export default function Employee({ params }: { params: { slug: string } }) {
+import EmployeePage from '@/components/Employees/Individual/EmployeePage';
+import { api } from '@/trpc/server';
+import { notFound } from 'next/navigation';
+
+export default async function Employee({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const { slug } = params;
-  return <div>Employee N{slug}</div>;
+  try {
+    const employee = await api.employees.getEmployee.query({ id: slug });
+    return <EmployeePage employee={employee} />;
+  } catch (err) {
+    notFound();
+  }
 }

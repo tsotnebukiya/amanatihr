@@ -32,66 +32,54 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { User } from 'next-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { api } from '@/trpc/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
-function getColumns(handleVerify: (id: string) => void) {
+function getColumns() {
   return [
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => {
-        const image = row.getValue('image');
-
         return (
           <div className="capitalize">
-            <div className="flex items-center gap-3">
+            <Link
+              href={`/dashboard/employees/${row.getValue('id')}`}
+              className="flex items-center gap-3"
+            >
               <Avatar className="h-7 w-7">
-                <AvatarImage alt="image" src={row.getValue('image')} />
+                <AvatarImage alt="image" src={row.getValue('image_url')} />
                 <AvatarFallback></AvatarFallback>
               </Avatar>
               <div className="text-sm font-medium">{row.getValue('name')}</div>
-            </div>
+            </Link>
           </div>
         );
       },
     },
     {
-      accessorKey: 'email',
-      header: 'Email',
-      cell: ({ row }) => (
-        <div className="lowercase">{row.getValue('email')}</div>
-      ),
+      accessorKey: 'image_url',
     },
     {
-      accessorKey: 'image',
-    },
-    {
-      accessorKey: 'verified',
-      header: 'Verified',
+      accessorKey: 'birthday',
+      header: 'Birthday',
       cell: ({ row }) => {
-        const verified = row.getValue('verified');
+        const birthday = row.getValue('birthday') as Date;
+        const formattedDate = birthday.toLocaleDateString('en-us', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
         return (
-          <Badge variant={verified ? 'outline' : 'destructive'}>
-            {verified ? 'Verified' : 'Unverified'}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: 'admin',
-      header: 'Role',
-      cell: ({ row }) => {
-        const admin = row.getValue('admin') || false;
-        return (
-          <div className="flex gap-1">
-            {admin ? <ShieldCheck /> : <UserRound />}
-            {admin ? 'Admin' : 'HR'}
+          <div className="capitalize">
+            <div className="flex items-center gap-3">
+              <div className="text-sm font-medium">{formattedDate}</div>
+            </div>
           </div>
         );
       },
@@ -101,52 +89,20 @@ function getColumns(handleVerify: (id: string) => void) {
       header: 'Id',
       cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const id = row.getValue('id') as string;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-              <DropdownMenuItem onClick={() => handleVerify(id)}>
-                Verify
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ] as ColumnDef<User>[];
+  ] as ColumnDef<Employee>[];
 }
-export function HRTable({ hrUsers }: { hrUsers: User[] }) {
-  const router = useRouter();
-  const { mutate } = api.hr.verifyHR.useMutation({
-    onError: (err) => {
-      toast.error(err.message);
-    },
-    onSuccess: () => {
-      router.refresh();
-      toast.success('User verified');
-    },
-  });
-  const handleVerify = (id: string) => {
-    mutate({ id });
-  };
-  const data = hrUsers;
-  const columns = getColumns(handleVerify);
+export function EmployeesTable({
+  employeeUsers,
+}: {
+  employeeUsers: Employee[];
+}) {
+  const data = employeeUsers;
+  const columns = getColumns();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({ image: false });
+    React.useState<VisibilityState>({ image_url: false });
   const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
     data,
@@ -161,7 +117,6 @@ export function HRTable({ hrUsers }: { hrUsers: User[] }) {
       rowSelection,
     },
   });
-
   return (
     <div className="w-full">
       <div className="rounded-md border">
