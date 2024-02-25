@@ -15,8 +15,9 @@ import {
   Table,
 } from '@/components/ui/table';
 import { ChevronDown, Search } from 'lucide-react';
+import { api } from '@/trpc/server';
 
-export default function Component() {
+export default async function Component() {
   return (
     <>
       <div className="flex items-center justify-between">

@@ -2,6 +2,7 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
+  User,
 } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { FirestoreAdapter } from '@auth/firebase-adapter';
@@ -20,10 +21,12 @@ import { env } from '@/env';
 declare module 'next-auth' {
   interface User {
     id: string;
-    verified: string;
+    verified?: boolean;
     image: string;
     name: string;
     email: string;
+    admin?: boolean;
+    hr: true;
   }
   interface Session extends DefaultSession {
     user: User;
@@ -43,6 +46,18 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+      async profile(profile) {
+        const obj: User = {
+          id: profile.sub,
+          image: profile.picture,
+          name: profile.name,
+          email: profile.email,
+          hr: true,
+          verified: false,
+          admin: false,
+        };
+        return obj;
+      },
     }),
   ],
   adapter: FirestoreAdapter({
