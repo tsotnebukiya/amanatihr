@@ -1,4 +1,4 @@
-import UserTable from '@/components/UserTable';
+import AdminPage from '@/components/Admin/AdminPage';
 import { getServerAuthSession } from '@/server/auth';
 import { api } from '@/trpc/server';
 import { redirect } from 'next/navigation';
@@ -9,5 +9,5 @@ export default async function Admin() {
     redirect('/dashboard');
   }
   const hrUsers = await api.hr.getHR.query();
-  return <UserTable data={hrUsers} type="HR" />;
+  return <AdminPage data={hrUsers} />;
 }

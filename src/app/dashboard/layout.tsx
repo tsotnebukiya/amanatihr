@@ -1,10 +1,8 @@
-import Sidebar from '@/components/Sidebar';
-import Navbar from '@/components/Navbar';
-import { useSession } from 'next-auth/react';
+import Sidebar from '@/components/Layout/Sidebar';
+import Navbar from '@/components/Layout/Navbar';
 import { getServerAuthSession } from '@/server/auth';
 import { redirect } from 'next/navigation';
-import Unverified from '@/components/Unverified';
-import { User } from 'next-auth';
+import Unverified from '@/components/Layout/Unverified';
 import { TRPCReactProvider } from '@/trpc/react';
 
 export default async function Layout({

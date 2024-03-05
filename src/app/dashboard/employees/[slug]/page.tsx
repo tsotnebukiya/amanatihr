@@ -10,7 +10,7 @@ export default async function Employee({
   const { slug } = params;
   try {
     const employee = await api.employees.getEmployee.query({ id: slug });
-    return <EmployeePage employee={employee} />;
+    return <EmployeePage data={employee} />;
   } catch (err) {
     notFound();
   }
