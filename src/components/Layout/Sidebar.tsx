@@ -26,12 +26,12 @@ const links = [
     Icon: UserIcon,
     admin: false,
   },
-  {
-    name: 'Attendance',
-    url: '/dashboard/attendance',
-    Icon: CalendarClock,
-    admin: false,
-  },
+  // {
+  //   name: 'Attendance',
+  //   url: '/dashboard/attendance',
+  //   Icon: CalendarClock,
+  //   admin: false,
+  // },
   {
     name: 'Admin',
     url: '/dashboard/admin',

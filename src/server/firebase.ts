@@ -1,5 +1,12 @@
 import * as admin from 'firebase-admin';
 import { env } from '@/env';
+import moment from 'moment';
+
+moment.updateLocale('en', {
+  week: {
+    dow: 1, // Monday is the first day of the week.
+  },
+});
 
 if (admin.apps.length === 0) {
   admin.initializeApp({

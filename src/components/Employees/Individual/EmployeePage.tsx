@@ -17,101 +17,49 @@ import {
   LogOutIcon,
   UserIcon,
 } from 'lucide-react';
+import EmployeeChart from './EmployeeChart';
+import DailyStats from './DailyStats';
+import GeneralInfo from './GeneralInfo';
+import EmployeeHeader from './Header';
+import { useState } from 'react';
+import { api } from '@/trpc/react';
+import moment from 'moment';
 
 type EmployeeData = RouterOutputs['employees']['getEmployee'];
 
 export default function EmployeePage({ data }: { data: EmployeeData }) {
-  const { employee, attendance } = data;
-  console.log(attendance);
+  const [weeklyDate, setWeeklyDate] = useState<Date>(new Date());
+  const [dailyDate, setDailyDate] = useState<Date>(new Date());
+  const { data: queryData } = api.employees.getEmployee.useQuery(
+    {
+      id: data.employee.id,
+      dailyString: moment(dailyDate).toString(),
+      weeklyString: moment(weeklyDate).toString(),
+    },
+    {
+      initialData: data,
+      enabled: true,
+    }
+  );
+  const { employee, dailyAtt, weeklyAtt } = queryData;
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="w-full h-64 flex items-center justify-center bg-gray-200 dark:bg-gray-800 rounded-lg mb-8">
-        <Avatar className="h-24 w-24">
-          <AvatarImage alt="User Avatar" src={employee.image_url} />
-          <AvatarFallback>
-            {employee.name[0]}
-            {employee.surname[0]}
-          </AvatarFallback>
-        </Avatar>
-        <h1 className="text-2xl font-bold ml-4">
-          {employee.name} {employee.surname}
-        </h1>
-      </div>
-      <div className="grid md:grid-cols-2 gap-36 w-full">
-        <div className="flex-1">
-          <div className="mb-8">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  className="w-full justify-start text-left font-normal"
-                  variant="outline"
-                >
-                  <CalendarDaysIcon className="mr-1 h-4 w-4 -translate-x-1" />
-                  Select a date
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-auto p-0">
-                <Calendar initialFocus mode="single" />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Attendance Statistics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
-                <div className="flex items-center gap-2">
-                  <ClockIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <p className="text-sm">
-                    Late: <span className="font-medium">No</span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <LogInIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <p className="text-sm">
-                    Check-in: <span className="font-medium">8:00 AM</span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <LogOutIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <p className="text-sm">
-                    Check-out: <span className="font-medium">5:00 PM</span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ClockIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <p className="text-sm">
-                    Total Work Time:{' '}
-                    <span className="font-medium">9 hours</span>
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <EmployeeHeader employee={employee} />
+      <div className="grid xl:grid-cols-3 gap-6 w-full">
+        <div className="xl:col-span-2">
+          <EmployeeChart
+            weeklyAtt={weeklyAtt}
+            weekleyDate={weeklyDate}
+            setWeeklyDate={setWeeklyDate}
+          />
         </div>
-        <div className="flex-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>General Info</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
-                <div className="flex items-center gap-2">
-                  <UserIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <p className="text-sm">
-                    Name: <span className="font-medium">John Doe</span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CalendarDaysIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <p className="text-sm">
-                    Birthday: <span className="font-medium">01/01/1990</span>
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex flex-col gap-3">
+          <DailyStats
+            dailyAtt={dailyAtt}
+            dailyDate={dailyDate}
+            setDailyDate={setDailyDate}
+          />
+          <GeneralInfo employee={employee} />
         </div>
       </div>
     </div>

@@ -16,13 +16,10 @@ import {
 } from '@/components/ui/table';
 import { ChevronDown, Search } from 'lucide-react';
 import { api } from '@/trpc/server';
+import Dashboard from '@/components/Dashboard/Dashboard';
 
 export default async function Component() {
-  return (
-    <>
-      <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-lg md:text-2xl">Dashboard</h1>
-      </div>
-    </>
-  );
+  const result = await api.employees.getDashboardStats.query();
+
+  return <Dashboard data={result} />;
 }

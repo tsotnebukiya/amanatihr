@@ -26,7 +26,7 @@ declare module 'next-auth' {
     name: string;
     email: string;
     admin?: boolean;
-    hr: true;
+    hr?: true;
   }
   interface Session extends DefaultSession {
     user: User;

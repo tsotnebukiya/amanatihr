@@ -5,14 +5,19 @@ import { admin, firestore } from '@/server/firebase';
 import { User } from 'next-auth';
 import { TRPCError } from '@trpc/server';
 import { createUserSchema as formSchema } from '@/lib/schemas';
-import { calculateAttendance } from '@/lib/getAttendance';
+import {
+  calculateDailyAttendance,
+  calculateWeeklyAttendance,
+  fetchAttendanceRecords,
+  getTopLateEmployeesThisMonth,
+} from '@/lib/getAttendance';
+import { convertDate } from '@/lib/utils';
+import moment from 'moment';
 
-function convertDate(date: any) {
-  return new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
-}
+const usersCollection = firestore.collection('usersDummy');
+const attendanceCollection = firestore.collection('attendanceDummy');
 
-const usersCollection = firestore.collection('users');
-const attendanceCollection = firestore.collection('attendance');
+const timezone = 'Asia/Tbilisi';
 
 export const employeesRouter = createTRPCRouter({
   getEmployees: protectedProcedure.query(async () => {
@@ -30,8 +35,17 @@ export const employeesRouter = createTRPCRouter({
     return list;
   }),
   getEmployee: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        weeklyString: z.string().optional(),
+        dailyString: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
+      const { id: userId, dailyString, weeklyString } = input;
+      let daily: string = dailyString || moment().toString();
+      let weekly: string = weeklyString || moment().day(0).toString();
       const docRef = usersCollection.doc(input.id);
       const docSnap = await docRef.get();
       if (!docSnap.exists) {
@@ -40,33 +54,37 @@ export const employeesRouter = createTRPCRouter({
           message: `No employee found with ID ${input.id}`,
         });
       }
+      const weeklyAttendanceRecordsPromise = fetchAttendanceRecords(
+        userId,
+        weekly,
+        attendanceCollection,
+        'weekly'
+      );
+      const dailyAttendanceRecordsPromise = fetchAttendanceRecords(
+        userId,
+        daily,
+        attendanceCollection,
+        'daily'
+      );
+      const [weeklyAttendanceRecords, dailyAttendanceRecords] =
+        await Promise.all([
+          weeklyAttendanceRecordsPromise,
+          dailyAttendanceRecordsPromise,
+        ]);
+
+      const weeklyAtt = calculateWeeklyAttendance(weeklyAttendanceRecords);
+      const dailyAtt = calculateDailyAttendance(dailyAttendanceRecords);
+      // OtherDate
       const data = docSnap.data();
       const birthday = convertDate(data?.birthday);
-      const query = attendanceCollection.where('user_id', '==', input.id);
-      const snapshot = await query.get();
-      const attendanceRecords: Attendance[] = [];
-      snapshot.forEach((doc) => {
-        const timestamp = convertDate(doc.data().timestamp);
-        const created_at = convertDate(doc.data().created_at);
-        attendanceRecords.push({
-          id: doc.id,
-          ...doc.data(),
-          created_at,
-          timestamp,
-        } as Attendance);
-      });
-      const result = calculateAttendance(
-        attendanceRecords,
-        new Date('January 14, 2024')
-      );
-      console.log(result);
       return {
         employee: {
           id: docSnap.id,
           ...data,
           birthday,
         } as Employee,
-        attendance: attendanceRecords,
+        weeklyAtt,
+        dailyAtt,
       };
     }),
   createEmployee: protectedProcedure
@@ -85,4 +103,13 @@ export const employeesRouter = createTRPCRouter({
       });
       return uid;
     }),
+  getDashboardStats: protectedProcedure.query(async () => {
+    const result = await getTopLateEmployeesThisMonth(
+      new Date('February 3,2024'),
+
+      attendanceCollection,
+      usersCollection
+    );
+    return result;
+  }),
 });

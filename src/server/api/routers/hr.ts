@@ -21,7 +21,6 @@ export const hrRouter = createTRPCRouter({
   verifyHR: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
-      console.log('HERE');
       const userDocRef = usersCollection.doc(input.id);
       const userDoc = await userDocRef.get();
       const userData = userDoc.data();
