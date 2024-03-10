@@ -92,7 +92,6 @@ export default function EmployeeChart({
   setWeeklyDate,
   weekleyDate,
 }: Props) {
-  console.log(weeklyAtt);
   const data = {
     labels,
     datasets: [

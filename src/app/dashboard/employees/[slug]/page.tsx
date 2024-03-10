@@ -1,5 +1,6 @@
 import EmployeePage from '@/components/Employees/Individual/EmployeePage';
 import { api } from '@/trpc/server';
+import moment from 'moment';
 import { notFound } from 'next/navigation';
 
 export default async function Employee({
@@ -8,15 +9,13 @@ export default async function Employee({
   params: { slug: string };
 }) {
   const { slug } = params;
-  const date = new Date();
   try {
     const employee = await api.employees.getEmployee.query({
       id: slug,
-      dailyString: date.toString(),
-      weeklyString: date.toString(),
     });
     return <EmployeePage data={employee} />;
-  } catch (err) {
+  } catch (err: any) {
+    console.log(err.message);
     notFound();
   }
 }

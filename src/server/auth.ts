@@ -46,6 +46,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+
       async profile(profile) {
         const obj: User = {
           id: profile.sub,
@@ -69,6 +70,9 @@ export const authOptions: NextAuthOptions = {
       clientEmail: env.FIREBASE_CLIENT_EMAIL,
     }),
   }) as Adapter,
+  pages: {
+    signIn: '/sign-in',
+  },
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);

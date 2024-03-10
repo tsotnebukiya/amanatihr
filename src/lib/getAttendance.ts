@@ -106,16 +106,14 @@ export async function fetchAttendanceRecords(
 ): Promise<Attendance[]> {
   let from: Date;
   let to: Date;
+  const day = moment().format();
   if (type === 'weekly') {
-    from = moment(timestamp).weekday(0).toDate();
-    to = moment(timestamp).weekday(5).toDate();
-    console.log(from, to, 'CHECKWeekly');
+    from = moment(timestamp).weekday(1).toDate();
+    to = moment(timestamp).weekday(6).toDate();
   } else {
-    from = moment(timestamp).add(1, 'days').toDate();
-    to = moment(timestamp).add(2, 'days').toDate();
-    console.log(from, to, 'CHECKDAILY');
+    from = moment(timestamp).toDate();
+    to = moment(timestamp).add(1, 'days').toDate();
   }
-
   const query = collection
     .where('user_id', '==', userId)
     .where('created_at', '>=', from)

@@ -52,7 +52,6 @@ export default function DailyStats({
               mode="single"
               selected={dailyDate}
               onSelect={(val) => {
-                console.log(val, 'VALUEE');
                 return val && setDailyDate(val);
               }}
             />

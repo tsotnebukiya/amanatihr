@@ -30,11 +30,13 @@ type EmployeeData = RouterOutputs['employees']['getEmployee'];
 export default function EmployeePage({ data }: { data: EmployeeData }) {
   const [weeklyDate, setWeeklyDate] = useState<Date>(new Date());
   const [dailyDate, setDailyDate] = useState<Date>(new Date());
+  console.log(dailyDate);
+  console.log(moment(dailyDate).utc().format());
   const { data: queryData } = api.employees.getEmployee.useQuery(
     {
       id: data.employee.id,
-      dailyString: moment(dailyDate).toString(),
-      weeklyString: moment(weeklyDate).toString(),
+      dailyString: moment(dailyDate).format(),
+      weeklyString: moment(weeklyDate).format(),
     },
     {
       initialData: data,

@@ -44,8 +44,8 @@ export const employeesRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const { id: userId, dailyString, weeklyString } = input;
-      let daily: string = dailyString || moment().toString();
-      let weekly: string = weeklyString || moment().day(0).toString();
+      let daily: string = dailyString || moment().format();
+      let weekly: string = weeklyString || moment().day(0).format();
       const docRef = usersCollection.doc(input.id);
       const docSnap = await docRef.get();
       if (!docSnap.exists) {

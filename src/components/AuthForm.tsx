@@ -54,7 +54,7 @@ export default function AuthForm() {
           <div className="text-center mb-4">or</div>
           <Button
             className="w-full bg-[#3789db] hover:bg-[#3789db]/90"
-            onClick={() => signIn()}
+            onClick={() => signIn('google')}
           >
             <ChromeIcon className="w-4 h-4 mr-2" />
             Login with Google{'\n              '}
